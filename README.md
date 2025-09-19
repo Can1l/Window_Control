@@ -2,7 +2,7 @@
 
 ### What is this repository for? ###
 
-* This repository will hold an Arduino proyect to locate a window with fresnel glass on Earth, transform ephemeris to
+* This repository will hold an Arduino proyect to locate a window with fresnel lenses on Earth, transform ephemeris to
   cartesian coordinates and move an inner glass with solar arrays following longitudinal direct sunlight, concentrated
   by this fresnel layer, using step motors.
   
