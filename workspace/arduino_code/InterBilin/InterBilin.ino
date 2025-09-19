@@ -1,8 +1,8 @@
 #include <Arduino.h>
+#include <interpolacion.h>
+#include <spa.h>
 #define EPSILON 1e-3
 #define N 86
-
-
 const float matriz_X[N][N] = {
   {1.1700, 1.1520, 1.1361, 1.1242, 1.1185, 1.1210, 1.1358, 1.1638, 1.2023, 1.2486, 1.3000, 1.3528, 1.4002, 1.4354, 1.4510, 1.4400, 1.4097, 1.3768, 1.3480, 1.3301, 1.3300, 1.3478, 1.3837, 1.4447, 1.5378, 1.6700, 1.8562, 2.0810, 2.3056, 2.4915, 2.6000, 2.6064, 2.5368, 2.4290, 2.3208, 2.2500, 2.2522, 2.3300, 2.4717, 2.6656, 2.9000, 3.1581, 3.3810, 3.4940, 3.4223, 3.0911, 2.4410, 1.5616, 0.6022, -0.2880, -0.9600, -1.3165, -1.4217, -1.3688, -1.2505, -1.1600, -1.1629, -1.2438, -1.3743, -1.5259, -1.6700, -1.7791, -1.8403, -1.8469, -1.7923, -1.6700, -1.4744, -1.2267, -0.9597, -0.7065, -0.5000, -0.3629, -0.2853, -0.2512, -0.2447, -0.2500, -0.2539, -0.2548, -0.2537, -0.2518, -0.2500, -0.2484, -0.2467, -0.2458, -0.2467, -0.2500},
   {2.1583, 2.1365, 2.1199, 2.1084, 2.1077, 2.1057, 2.1191, 2.1506, 2.1913, 2.2439, 2.2967, 2.3204, 2.3362, 2.3361, 2.3133, 2.2457, 2.2003, 2.1694, 2.1459, 2.1506, 2.1834, 2.1844, 2.2057, 2.2555, 2.3432, 2.4394, 2.5868, 2.7725, 2.9406, 3.0566, 3.1095, 3.0746, 2.9808, 2.8653, 2.7741, 2.7121, 2.7003, 2.7713, 2.9014, 3.0843, 3.3075, 3.5427, 3.7376, 3.7940, 3.6386, 3.2731, 2.6661, 1.8674, 1.0414, 0.3412, -0.1293, -0.4242, -0.4981, -0.4438, -0.3572, -0.3469, -0.3845, -0.4973, -0.6514, -0.8184, -0.9736, -1.0982, -1.1765, -1.1986, -1.1579, -1.0602, -0.8959, -0.6854, -0.4627, -0.2608, -0.1067, 0.0063, 0.0623, 0.0776, 0.0680, 0.0505, 0.0357, 0.0234, 0.0126, 0.0020, -0.0138, -0.0360, -0.0584, -0.0820, -0.1076, -0.1297},
@@ -182,53 +182,109 @@ const float matriz_Z[N][N] = {
 
 float query_points[2]; //Asignar AOIl y AOIt al final d la task en la que los calculo
 
-static int find_interval(const float arr[], int n, float q) {
-  if (q <= arr[0]) return 0;
-  if (q >= arr[n-1]) return n-2;
-  int low = 0;
-  int high = n - 1;
-  while (high - low > 1) {
-    int mid = (low + high) / 2;
-    if (q < arr[mid]) high = mid;
-
-    else low = mid;
-  }
-  return low;
-}
-
-float interpolate(const float *coords[2], const int n[2],
-                  const float values[N][N], const float query_points[2]) {
-  int indices[2] = {0};
-  float t[2] = {0.0};
-
-  // Find intervals and compute weights
-  for (int d = 0; d < 2; d++) {
-    indices[d] = find_interval(coords[d], n[d], query_points[d]);
-    float x0 = coords[d][indices[d]];
-    float x1 = coords[d][indices[d] + 1];
-    t[d] = (query_points[d] - x0) / (x1 - x0);
-  }
-
-  // Bilinear interpolation
-  int i = indices[0];
-  int j = indices[1];
-
-  float z00 = values[i][j];
-  float z01 = values[i][j + 1];
-  float z10 = values[i + 1][j];
-  float z11 = values[i + 1][j + 1];
-
-  float z0 = z00 + t[1] * (z01 - z00);
-  float z1 = z10 + t[1] * (z11 - z10);
-
-  return z0 + t[0] * (z1 - z0);
-}
 
 void setup() {
   Serial.begin(115200);
+ spa_data spa;  //declare the SPA structure
+    int result;
+    float min, sec;
 
-  query_points[0] = -0.3f; // AOIt (filas)
-  query_points[1] = 1.7f; // AOIl (columnas)
+    //enter required input values into SPA structure
+
+    spa.year          = 2025;
+    spa.month         = 9;
+    spa.day           = 17;
+    spa.hour          = 12;
+    spa.minute        = 30;
+    spa.second        = 0;
+    spa.timezone      = 2;
+    spa.delta_ut1     = 0;
+    spa.delta_t       = 67;
+    spa.longitude     = -3.7271;
+    spa.latitude      = 40.4535;
+    spa.elevation     = 670;
+    spa.pressure      = 820;
+    spa.temperature   = 20;
+    spa.slope         = 30;
+    spa.azm_rotation  = -10;
+    spa.atmos_refract = 0.5667;
+    spa.function      = SPA_ALL;
+
+    //call the SPA calculate function and pass the SPA structure
+
+    result = spa_calculate(&spa);
+
+   if (result == 0)  // check for SPA errors
+{
+    // Display results
+    Serial.print("Julian Day:    ");
+    Serial.println(spa.jd, 6);
+
+    Serial.print("L:             ");
+    Serial.println(spa.l, 6);
+
+    Serial.print("B:             ");
+    Serial.println(spa.b, 6);
+
+    Serial.print("R:             ");
+    Serial.println(spa.r, 6);
+
+    Serial.print("H:             ");
+    Serial.println(spa.h, 6);
+
+    Serial.print("Delta Psi:     ");
+    Serial.println(spa.del_psi, 6);
+
+    Serial.print("Delta Epsilon: ");
+    Serial.println(spa.del_epsilon, 6);
+
+    Serial.print("Epsilon:       ");
+    Serial.println(spa.epsilon, 6);
+
+    Serial.print("Zenith:        ");
+    Serial.println(spa.zenith, 6);
+
+    Serial.print("Azimuth:       ");
+    Serial.println(spa.azimuth, 6);
+
+    Serial.print("Incidence:     ");
+    Serial.println(spa.incidence, 6);
+
+    // Sunrise
+    double min = 60.0 * (spa.sunrise - (int)(spa.sunrise));
+    double sec = 60.0 * (min - (int)min);
+    Serial.print("Sunrise:       ");
+    if ((int)(spa.sunrise) < 10) Serial.print('0');
+    Serial.print((int)(spa.sunrise));
+    Serial.print(':');
+    if ((int)min < 10) Serial.print('0');
+    Serial.print((int)min);
+    Serial.print(':');
+    if ((int)sec < 10) Serial.print('0');
+    Serial.println((int)sec);
+
+    // Sunset
+    min = 60.0 * (spa.sunset - (int)(spa.sunset));
+    sec = 60.0 * (min - (int)min);
+    Serial.print("Sunset:        ");
+    if ((int)(spa.sunset) < 10) Serial.print('0');
+    Serial.print((int)(spa.sunset));
+    Serial.print(':');
+    if ((int)min < 10) Serial.print('0');
+    Serial.print((int)min);
+    Serial.print(':');
+    if ((int)sec < 10) Serial.print('0');
+    Serial.println((int)sec);
+
+} 
+else 
+{
+    Serial.print("SPA Error Code: ");
+    Serial.println(result);
+}
+
+  query_points[0] = 15.4f; // AOIt (filas)
+  query_points[1] = 18.6f; // AOIl (columnas)
   
   static float x_coords[N], y_coords[N];
   for (int k = 0; k < N; k++) {

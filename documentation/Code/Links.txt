@@ -1,0 +1,2 @@
+- SPA: https://midcdmz.nrel.gov/spa/
+- Interpolacion: https://github.com/larmicfre/unified-interpolation-in-c/

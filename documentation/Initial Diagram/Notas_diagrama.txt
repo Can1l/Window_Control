@@ -1,0 +1,67 @@
+1. Localizar ventana.
+	1.1 Fecha y hora.
+		1.1.1 Consulta servidor NTP: requiere conexión a internet. 
+		1.1.2 Reloj con pila: hay que cambiar la pila, desfase.
+		1.1.3 GPS: da la hora con precisión, puede usarse para 
+				localizar la ventana automáticamente.
+				
+			La opción que me parece más viable es el GPS. Podría
+				activarse solo al principio de cada reset y recoger 
+				los parámetros una sola vez, pasándoselos al ESP32. 
+				El ESP32 utilizaría su reloj interno para no necesitar
+				que el GPS esté activo todo el tiempo.
+				Con esto podemos conseguir ahorro de energía y no dejar
+				el ajuste de parámetros al instalador.
+				Se puede corregir la hora del ESP32 diariamente, desfase 
+				de segundos.
+	
+	1.2 Latitud y longitud.
+		Responsabilidad del instalador o automático con GPS.
+		
+
+2. Cálculo efemérides.
+	Se usa latitud, longitud, fecha y hora para la localización de la ventana.
+	Con la librería SPA se obtienen los valores de azimuth y elevación.
+	Se puede usar la hora amanecer y anochecer de la librería para poner el micro 
+	en modo sleep y que solo funcione entre el amanecer y el anochecer.
+	
+3. Cálculo AOIt y AOIl. 
+	Traducir el procedimiento de python de Almudena a C++.
+	Usar una IMU para obtener la orientación de la ventana. También solo una vez
+	al inicio del programa para ahorrar energía.
+	
+	Entiendo que, la corrección de rotar el panel dependiendo del tilt se hace al instalar 
+	la ventana, pues dicho tilt_max para que la fresnel sea efectiva depende de la latitud,
+	longitud y orientación de la propia ventana (por ejemplo, una ventana en Finlandia 
+	necesitará tener un tilt más elevado que los 45º que se consideran para Madrid, para 
+	que sea necesario hacer la rotación). Es decir, es eñ instalador, dependiendo de la 
+	latitud, el que debe saber si rotar el panel y, con la imu, si el eje de la ventana está 
+	rotado respecto a su orientación normal, que haga la rotación de 180º para el cálculo de
+	los AOI.
+
+4. Interpolación lineal.
+	Con los valores de AOIl y AOIt, interpolar en las matrices 86x86 para conocer
+	las coordenadas x y z.
+
+5. Acción motores.
+	5.1. Modo manual.
+		5.1.1. Botonera.
+			Se puede usar una botonera o pad para mover manualmente el crital con las lentes.
+		5.1.2. Wifi.
+			Se puede emplear algo como lo que hizo el italiano, pero que pueda funcionar sin 
+			tener que volver a cero.
+		
+		La botonera me parece mejor. El wifi no puede usarse mientras el ESP32 duerme, por lo 
+		que debería estar siempre activo. La interrupción mientras duerme tiene que ser con un 
+		botón (GPIO) así que no veo la finalidad de tener que pulsar un botón en la ventana y 
+		luego conectarse con el teléfono, pc u otro. Además, el reset y el cambio de manual a 
+		automático me parece que es mejor con GPIOS. Se pueden aglomerar en un I2C par disminuir
+		ruido, rebotes y el número de pines necesarios.
+	
+	5.2. Modo automático.
+		Realiza todas las acciones automáticamente según el diagrama de flujo cada 30 seg o 1 min.
+		
+	5.3 Paso automático a manual, viceversa y a reset.
+		Como se ha comentado en 5.1, se realizará con botones. La idea es que solo se reinicie 
+		el dispositivo cada vez que pasa por el reset, volviendo a cargar fecha y hora y, en su caso,
+		latitud y longitud.
