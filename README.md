@@ -1,12 +1,12 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
-
 ### What is this repository for? ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* This repository will hold an Arduino proyect to locate a window with fresnel glass on Earth, transform ephemeris to
+  cartesian coordinates and move an inner glass with solar arrays following longitudinal direct sunlight, concentrated
+  by this fresnel layer, using step motors.
+  
+* Version [0.0.3]
 
 ### How do I get set up? ###
 
@@ -25,5 +25,6 @@ This README would normally document whatever steps are necessary to get your app
 
 ### Who do I talk to? ###
 
-* Repo owner or admin
-* Other community or team contact
+* Repo owner
+* ISI Team
+* Anyone interested
