@@ -27,4 +27,3 @@
 
 * Repo owner
 * ISI Team
-* Anyone interested
