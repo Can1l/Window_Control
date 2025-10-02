@@ -34,7 +34,7 @@
 	la ventana, pues dicho tilt_max para que la fresnel sea efectiva depende de la latitud,
 	longitud y orientación de la propia ventana (por ejemplo, una ventana en Finlandia 
 	necesitará tener un tilt más elevado que los 45º que se consideran para Madrid, para 
-	que sea necesario hacer la rotación). Es decir, es eñ instalador, dependiendo de la 
+	que sea necesario hacer la rotación). Es decir, es el instalador, dependiendo de la 
 	latitud, el que debe saber si rotar el panel y, con la imu, si el eje de la ventana está 
 	rotado respecto a su orientación normal, que haga la rotación de 180º para el cálculo de
 	los AOI.

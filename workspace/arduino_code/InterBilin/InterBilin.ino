@@ -1,6 +1,7 @@
 #include <Arduino.h>
-#include <interpolacion.h>
-#include <spa.h>
+#include "interpolacion.h"
+#include "spa.h"
+#include "aoicalc.h"
 #define EPSILON 1e-3
 #define N 86
 const float matriz_X[N][N] = {
@@ -185,39 +186,41 @@ float query_points[2]; //Asignar AOIl y AOIt al final d la task en la que los ca
 
 void setup() {
   Serial.begin(115200);
- spa_data spa;  //declare the SPA structure
-    int result;
-    float min, sec;
 
-    //enter required input values into SPA structure
+  //Solar position calculation
+  spa_data spa;  //declare the SPA structure
+  int result;
+  float min, sec;
 
-    spa.year          = 2025;
-    spa.month         = 9;
-    spa.day           = 17;
-    spa.hour          = 12;
-    spa.minute        = 30;
-    spa.second        = 0;
-    spa.timezone      = 2;
-    spa.delta_ut1     = 0;
-    spa.delta_t       = 67;
-    spa.longitude     = -3.7271;
-    spa.latitude      = 40.4535;
-    spa.elevation     = 670;
-    spa.pressure      = 820;
-    spa.temperature   = 20;
-    spa.slope         = 30;
-    spa.azm_rotation  = -10;
-    spa.atmos_refract = 0.5667;
-    spa.function      = SPA_ALL;
+  //enter required input values into SPA structure
 
-    //call the SPA calculate function and pass the SPA structure
+  spa.year          = 2025;
+  spa.month         = 9;
+  spa.day           = 17;
+  spa.hour          = 12;
+  spa.minute        = 30;
+  spa.second        = 0;
+  spa.timezone      = 2;
+  spa.delta_ut1     = 0;
+  spa.delta_t       = 67;
+  spa.longitude     = -3.7271;
+  spa.latitude      = 40.4535;
+  spa.elevation     = 670;
+  spa.pressure      = 820;
+  spa.temperature   = 20;
+  spa.slope         = 30;
+  spa.azm_rotation  = -10;
+  spa.atmos_refract = 0.5667;
+  spa.function      = SPA_ZA_RTS;
 
-    result = spa_calculate(&spa);
+  //call the SPA calculate function and pass the SPA structure
 
-   if (result == 0)  // check for SPA errors
-{
-    // Display results
-    Serial.print("Julian Day:    ");
+  result = spa_calculate(&spa);
+
+  if (result == 0)  // check for SPA errors
+  {
+  // Display results
+/*  Serial.print("Julian Day:    ");
     Serial.println(spa.jd, 6);
 
     Serial.print("L:             ");
@@ -241,48 +244,48 @@ void setup() {
     Serial.print("Epsilon:       ");
     Serial.println(spa.epsilon, 6);
 
+
+    Serial.print("Incidence:     ");
+    Serial.println(spa.incidence, 6);
+
+*/
     Serial.print("Zenith:        ");
     Serial.println(spa.zenith, 6);
 
     Serial.print("Azimuth:       ");
     Serial.println(spa.azimuth, 6);
 
+    Serial.print("Elevation:     ");
+    Serial.println(spa.e, 6);
+
     Serial.print("Incidence:     ");
     Serial.println(spa.incidence, 6);
 
-    // Sunrise
-    double min = 60.0 * (spa.sunrise - (int)(spa.sunrise));
-    double sec = 60.0 * (min - (int)min);
-    Serial.print("Sunrise:       ");
-    if ((int)(spa.sunrise) < 10) Serial.print('0');
-    Serial.print((int)(spa.sunrise));
-    Serial.print(':');
-    if ((int)min < 10) Serial.print('0');
-    Serial.print((int)min);
-    Serial.print(':');
-    if ((int)sec < 10) Serial.print('0');
-    Serial.println((int)sec);
 
-    // Sunset
-    min = 60.0 * (spa.sunset - (int)(spa.sunset));
-    sec = 60.0 * (min - (int)min);
-    Serial.print("Sunset:        ");
-    if ((int)(spa.sunset) < 10) Serial.print('0');
-    Serial.print((int)(spa.sunset));
-    Serial.print(':');
-    if ((int)min < 10) Serial.print('0');
-    Serial.print((int)min);
-    Serial.print(':');
-    if ((int)sec < 10) Serial.print('0');
-    Serial.println((int)sec);
+    Serial.print("Sunrise: ");
+    printTimeDecimal(spa.sunrise);
 
-} 
-else 
-{
+    Serial.print("Sunset: ");
+    printTimeDecimal(spa.sunset);
+  } 
+  
+  else 
+  {
     Serial.print("SPA Error Code: ");
     Serial.println(result);
-}
+  }
 
+  //Ephemerids to AOI
+  AOI angles;
+  double pan = 0;
+  double tilt = 0;
+  angles = ephToAOI(spa.azimuth, spa.elevation, pan, tilt);
+  Serial.print("AOIl: ");
+  Serial.println(angles.AOIl);
+  
+  Serial.print("AOIt: ");
+  Serial.println(angles.AOIt);
+  
   query_points[0] = 15.4f; // AOIt (filas)
   query_points[1] = 18.6f; // AOIl (columnas)
   

@@ -120,8 +120,8 @@
 
 #include <math.h>
 #include "spa.h"
+#include "commonlib.h"
 
-#define PI         3.1415926535897932384626433832795028841971
 #define SUN_RADIUS 0.26667
 
 #define L_COUNT 6
@@ -519,16 +519,7 @@ const double PE_TERMS[Y_COUNT][TERM_PE_COUNT]={
 };
 
 ///////////////////////////////////////////////
-
-double rad2deg(double radians)
-{
-    return (180.0/PI)*radians;
-}
-
-double deg2rad(double degrees)
-{
-    return (PI/180.0)*degrees;
-}
+//Incluidas para calculos AOIt y AOIl
 
 int integer(double value)
 {
@@ -1123,6 +1114,10 @@ void calculate_eot_and_sun_rise_transit_set(spa_data *spa)
     } else spa->srha= spa->ssha= spa->sta= spa->suntransit= spa->sunrise= spa->sunset= -99999;
 
 }
+
+
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Calculate all SPA parameters and put into structure

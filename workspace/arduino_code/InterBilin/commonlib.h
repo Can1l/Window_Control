@@ -1,0 +1,17 @@
+#ifndef commonlib.h
+#define commonlib.h
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define PI 3.1415926535897932384626433832795028841971
+
+double rad2deg(double radians);
+double rad2deg(double radians);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

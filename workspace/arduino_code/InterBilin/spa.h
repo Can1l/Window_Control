@@ -5,7 +5,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 //enumeration for function codes to select desired final outputs from SPA
 enum {
     SPA_ZA,           //calculate zenith and azimuth
@@ -125,6 +124,7 @@ typedef struct
     double azimuth_astro;//topocentric azimuth angle (westward from south) [for astronomers]
     double azimuth;      //topocentric azimuth angle (eastward from north) [for navigators and solar radiation]
     double incidence;    //surface incidence angle [degrees]
+ 
 
     double suntransit;   //local sun transit time (or solar noon) [fractional hour]
     double sunrise;      //local sunrise time (+/- 30 seconds) [fractional hour]
@@ -133,8 +133,8 @@ typedef struct
 } spa_data;
 
 //-------------- Utility functions for other applications (such as NREL's SAMPA) --------------
-double deg2rad(double degrees);
-double rad2deg(double radians);
+//double deg2rad(double degrees);
+//double rad2deg(double radians);
 double limit_degrees(double degrees);
 double third_order_polynomial(double a, double b, double c, double d, double x);
 double geocentric_right_ascension(double lamda, double epsilon, double beta);
@@ -151,7 +151,6 @@ double topocentric_elevation_angle_corrected(double e0, double delta_e);
 double topocentric_zenith_angle(double e);
 double topocentric_azimuth_angle_astro(double h_prime, double latitude, double delta_prime);
 double topocentric_azimuth_angle(double azimuth_astro);
-
 
 //Calculate SPA output values (in structure) based on input values passed in structure
 int spa_calculate(spa_data *spa);
