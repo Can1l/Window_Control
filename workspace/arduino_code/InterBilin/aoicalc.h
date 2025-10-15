@@ -5,30 +5,44 @@
 extern "C" {
 #endif
 
-#define TILT_MAX 45 // Angle in grades 
+#define TILT_MAX 45 // Angle in degrees 
 
 typedef struct{
-double AOIl;
-double AOIt;
+	double _AOI;
+	double AOIl;
+	double AOIt;
+	double azimuth, phi;
+	double elevation, eps;
+	double pan, pan_rad;
+	double tilt, tilt_rad;
+	double x, y, z;
 } AOI;
 
-// Pan (z rotation)
-void degToCartesian(double azimuth, double elevation, double *coords);
 
-void applyPan(double pan, double *coords);  
 
+// sferical coordinates to cartesian coordinates
+AOI degToCartesian(double azimuth, double elevation);
+//clockwise rotation around the Z axis
+AOI applyPan(double pan, double _x, double _y);  
+double zClip(double _z);
 // Tilt (y rotation)
-void applyTilt(double tilt, double *coords);
+AOI applyTilt(double tilt, double _x, double _z);
 
  // Tilt correction when tilt > max_tilt
-void applyTiltCorrection(double tilt, double *coords);
+AOI applyTiltCorrection(double _x, double _y) ;
 
 // AOIl AOIt 
-AOI cartesianToAngles(double *coords);
+AOI cartesianToAngles(double _x, double _y, double _z);
 
 
-AOI ephToAOI(double azimuth, double elevation, double pan, double tilt);
+AOI cartesianToNewEph(double _x, double _y, double _z);
+/*
+AOI newEphToAOI (struct Eph);
+AOI ephToNewEPh(double azimuth, double elevation, double pan, double tilt);
 
+AOI ephToToAOI(double azimuth, double elevation, double pan, double tilt);
+AOI ephToAOI2(double azimuth, double elevation, double pan, double tilt);
+*/
 #ifdef __cplusplus
 }
 #endif

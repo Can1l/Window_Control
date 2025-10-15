@@ -1,4 +1,3 @@
-
 #ifndef __solar_position_algorithm_header
 #define __solar_position_algorithm_header
 
@@ -6,6 +5,7 @@
 extern "C" {
 #endif
 //enumeration for function codes to select desired final outputs from SPA
+
 enum {
     SPA_ZA,           //calculate zenith and azimuth
     SPA_ZA_INC,       //calculate zenith, azimuth, and incidence
